@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers, viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authentication.models import User
@@ -44,3 +46,8 @@ class UserViewSet(viewsets.ModelViewSet):
         if getattr(instance, '_prefetched_objects_cache', None):
             instance._prefetched_objects_cache = {}
         return Response(serializer.data)
+
+    @action(detail=True, methods=['GET'], url_path='get-xp', url_name='Obtener XP usuario')
+    def get_xp(self, request, pk=None):
+        user = User.objects.get(pk=pk)
+        return Response({'xp': user.xp})
