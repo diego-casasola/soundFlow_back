@@ -6,3 +6,5 @@ from .medalla import Medalla
 from .imagen import Imagen
 from .audio import Audio
 from .user_nivel import UserNivel
+from .usuario_trofeos import UsuarioTrofeos
+from .usuario_medallas import UsuarioMedallas
