@@ -5,6 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authentication.models import User
+from authentication.repositories.user_repository import enable_basic_level
+from soundFlow_models.api.medalla_viewset import MedallaSerializer
+from soundFlow_models.api.trofeo_viewset import TrofeoSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCustomSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'username', 'xp')
+        fields = ('first_name', 'last_name', 'email', 'username', 'xp', 'energia')
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -30,7 +33,8 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers) \
+            if enable_basic_level(serializer.data) else Response(status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
