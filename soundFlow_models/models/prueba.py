@@ -16,7 +16,6 @@ from soundFlow_models.models import Desafio
 #C:do, D:re
 #
 class Prueba(models.Model):
-    orden = models.CharField(max_length=250)
     datos = models.TextField()
     resultado = models.TextField()
     desafio = models.ForeignKey(Desafio, on_delete=models.CASCADE, related_name='pruebas')
