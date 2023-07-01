@@ -10,4 +10,4 @@ class Desafio(models.Model):
 
     # str method show nivel + nombre
     def __str__(self):
-        return str(self.nivel) + ' - ' + self.nombre
+        return str(self.nivel) + ' - ' + self.nombre + ' - ' + str(self.pk)

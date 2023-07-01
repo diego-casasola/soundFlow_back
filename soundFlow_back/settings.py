@@ -26,6 +26,7 @@ SECRET_KEY = "django-insecure-rg@fpo%*2kkfo9)=!4i9q^94zfbx*^32^6$ri=7ej+!g)5su=v
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = ['http://localhost:4200']
 
 # Application definition
 
@@ -138,7 +139,6 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

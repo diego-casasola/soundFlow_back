@@ -15,6 +15,7 @@ class NivelSerializer(serializers.ModelSerializer):
 class NivelViewSet(viewsets.ModelViewSet):
     queryset = Nivel.objects.all()
     serializer_class = NivelSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['GET'], url_path='get_niveles_habilitados_user', url_name='Obtener niveles habilitados por usuario', permission_classes=[IsAuthenticated])
     def get_niveles_habilitados_user(self, request):
