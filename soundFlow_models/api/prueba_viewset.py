@@ -18,12 +18,16 @@ class PruebaViewSet(viewsets.ModelViewSet):
     queryset = Prueba.objects.all()
     serializer_class = PruebaSerializer
 
-    @action(detail=False, methods=['GET'], url_path='get_pruebas_desafio', url_name='Obtener pruebas por desafio',
+    @action(detail=True, methods=['GET'], url_path='get_pruebas_desafio', url_name='Obtener pruebas por desafio',
             permission_classes=[IsAuthenticated])
-    def get_pruebas_desafio(self, request):
-        desafio = request.data['desafio']
-        pruebas = Prueba.objects.filter(desafio_id=desafio)
-        return Response(PruebaSerializer(pruebas, many=True).data)
+    def get_pruebas_desafio(self, request, pk=None):
+        if pk is None:
+            return Response({'message': 'El desafio no existe'}, status=404)
+        try:
+            pruebas = Prueba.objects.filter(desafio_id=pk)
+            return Response(PruebaSerializer(pruebas, many=True).data)
+        except Prueba.DoesNotExist:
+            return Response({'message': 'El desafio no existe'}, status=404)
 
     @action(detail=False, methods=['POST'], url_path='respuesta-pruebaDesafio-user',
             url_name='Respuesta de prueba por desafio', permission_classes=[IsAuthenticated])
