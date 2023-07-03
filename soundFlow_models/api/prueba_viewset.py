@@ -18,7 +18,7 @@ class PruebaViewSet(viewsets.ModelViewSet):
     queryset = Prueba.objects.all()
     serializer_class = PruebaSerializer
 
-    @action(detail=True, methods=['GET'], url_path='get_pruebas_desafio', url_name='Obtener pruebas por desafio',
+    @action(detail=True, methods=['GET'], url_path='get-pruebas-desafio', url_name='Obtener pruebas por desafio',
             permission_classes=[IsAuthenticated])
     def get_pruebas_desafio(self, request, pk=None):
         if pk is None:
@@ -34,7 +34,8 @@ class PruebaViewSet(viewsets.ModelViewSet):
     def respuesta_pruebaDesafio_user(self, request):
         if request.user.energia >= 5:
             desafio = request.data['desafio']
-            respuestas_user = request.data['pruebas_res']
+            desafio = int(desafio)
+            respuestas_user = request.data['prueba_res']
 
             respuestas_user = sorted(respuestas_user, key=lambda prueba: prueba['id'])
             pruebas_db = Prueba.objects.filter(desafio_id=desafio)

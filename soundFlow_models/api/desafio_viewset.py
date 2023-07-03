@@ -31,7 +31,6 @@ class DesafioViewSet(viewsets.ModelViewSet):
     def get_desafios_habilitados_user(self, request, pk=None):
         desafio_user = [desafio['desafio_id'] for desafio in
                         UserNivel.objects.filter(user_id=request.user.id).values('desafio_id')]
-        print(desafio_user)
         desafios = Desafio.objects.filter(nivel_id=pk)
         desafios_habilitados = [desafios for desafios in desafios if desafios.id in desafio_user]
         return Response(DesafioSerializer(desafios_habilitados, many=True).data)
