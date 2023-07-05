@@ -38,7 +38,7 @@ class PruebaViewSet(viewsets.ModelViewSet):
             respuestas_user = request.data['prueba_res']
 
             respuestas_user = sorted(respuestas_user, key=lambda prueba: prueba['id'])
-            pruebas_db = Prueba.objects.filter(desafio_id=desafio)
+            pruebas_db = Prueba.objects.filter(desafio_id=desafio).order_by('id')
 
             # inicializar las pruebas resueltas por el usuario si es que no existen
             for prueba in pruebas_db:
@@ -69,20 +69,23 @@ class PruebaViewSet(viewsets.ModelViewSet):
                     print(desafio_actual.is_resuelto)
                     desafio_actual.is_resuelto = True
                     user.xp = user.xp + 100
+                    print(user.xp)
                     print(desafio_actual.is_resuelto)
+                    desafio_actual.save()
                     list_nivel = UserNivel.objects.filter(user_id=request.user.id, nivel=nivel, is_resuelto=True)
                     if user.xp >= 500 and len(list_nivel) >= 5 and nivel == 1:
                         UserNivel.objects.create(user_id=request.user.id, nivel_id=nivel + 1, desafio_id=24,
                                                  is_resuelto=False)
-                    if user.xp >= 1000 and len(list_nivel) >= 5 and nivel == 2:
+                    elif user.xp >= 1000 and len(list_nivel) >= 5 and nivel == 2:
                         UserNivel.objects.create(user_id=request.user.id, nivel_id=nivel + 1, desafio_id=29,
                                                  is_resuelto=False)
-                    if user.xp >= 1500 and len(list_nivel) >= 5 and nivel == 3:
+                    elif user.xp >= 1500 and len(list_nivel) >= 5 and nivel == 3:
                         UserNivel.objects.create(user_id=request.user.id, nivel_id=nivel + 1, desafio_id=34,
                                                  is_resuelto=False)
                     else:
                         UserNivel.objects.create(user_id=request.user.id, nivel_id=nivel, desafio_id=desafio + 1,
                                                  is_resuelto=False)
+
                 desafio_actual.save()
                 user.save()
 
