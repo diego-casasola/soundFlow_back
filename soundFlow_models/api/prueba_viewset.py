@@ -24,7 +24,7 @@ class PruebaViewSet(viewsets.ModelViewSet):
         if pk is None:
             return Response({'message': 'El desafio no existe'}, status=404)
         try:
-            pruebas = Prueba.objects.filter(desafio_id=pk)
+            pruebas = Prueba.objects.filter(desafio_id=pk).order_by('id')
             return Response(PruebaSerializer(pruebas, many=True).data)
         except Prueba.DoesNotExist:
             return Response({'message': 'El desafio no existe'}, status=404)
@@ -32,38 +32,38 @@ class PruebaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['POST'], url_path='respuesta-pruebaDesafio-user',
             url_name='Respuesta de prueba por desafio', permission_classes=[IsAuthenticated])
     def respuesta_pruebaDesafio_user(self, request):
-        if request.user.energia >= 5:
-            desafio = request.data['desafio']
-            desafio = int(desafio)
-            respuestas_user = request.data['prueba_res']
+        userEnergia = request.user.energia
 
-            respuestas_user = sorted(respuestas_user, key=lambda prueba: prueba['id'])
-            pruebas_db = Prueba.objects.filter(desafio_id=desafio).order_by('id')
+        needEnergy = request.data.get('needEnergy', False)
 
-            # inicializar las pruebas resueltas por el usuario si es que no existen
-            for prueba in pruebas_db:
-                if not PruebasResueltasUser.objects.filter(user_id=request.user.id, prueba_id=prueba.id).exists():
-                    PruebasResueltasUser.objects.create(user_id=request.user.id, prueba_id=prueba.id)
+        desafio = request.data['desafio']
+        desafio = int(desafio)
+        respuestas_user = request.data['prueba_res']
 
-            resultado = [respuestas_user for (respuestas_user, pruebas_db) in zip(respuestas_user, pruebas_db) if
-                         verify_prueba(respuestas_user, pruebas_db)]
+        respuestas_user = sorted(respuestas_user, key=lambda prueba: prueba['id'])
+        pruebas_db = Prueba.objects.filter(desafio_id=desafio).order_by('id')
 
-            # actualizar las pruebas resueltas por el usuario
-            for prueba in resultado:
-                PruebasResueltasUser.objects.filter(user_id=request.user.id, prueba_id=prueba['id']).update(
-                    is_resuelta=True)
+        resultado = [respuestas_user for (respuestas_user, pruebas_db) in zip(respuestas_user, pruebas_db) if
+                     verify_prueba(respuestas_user, pruebas_db)]
 
-            # por cada prueba con is_resuelta = True, aumenta la cantidad de XP del usuario
-            # for prueba in PruebasResueltasUser.objects.filter(user_id=request.user.id, is_resuelta=True):
-            #     User.objects.get(pk=request.user.id).update(xp=request.user.xp + 100)
+        resultado = sorted(resultado, key=lambda prueba: prueba['id'])
+        nivel = None
 
-            resultado = sorted(resultado, key=lambda prueba: prueba['id'])
-            nivel = None
+        desafio_actual = UserNivel.objects.get(user_id=request.user.id, desafio_id=desafio)
+        user = User.objects.get(pk=request.user.id)
+        nivel = Desafio.objects.get(id=desafio).nivel_id
 
+        if len(resultado) == len(pruebas_db) and desafio_actual.is_resuelto and needEnergy:
+            if user.energia < 20:
+                user.energia = user.energia + 5
+            user.save()
+
+            return Response({
+                'resultado': resultado
+            }, status=status.HTTP_200_OK)
+
+        elif userEnergia >= 5 and needEnergy is False:
             if len(resultado) == len(pruebas_db):
-                desafio_actual = UserNivel.objects.get(user_id=request.user.id, desafio_id=desafio)
-                user = User.objects.get(pk=request.user.id)
-                nivel = Desafio.objects.get(id=desafio).nivel_id
                 user.energia = user.energia - 5
                 if desafio_actual.is_resuelto is False:
                     print(desafio_actual.is_resuelto)
@@ -92,6 +92,7 @@ class PruebaViewSet(viewsets.ModelViewSet):
             return Response({
                 'resultado': resultado
             }, status=status.HTTP_200_OK)
+
         else:
             return Response({
                 'message': 'No tienes suficiente energia para realizar esta acción'
