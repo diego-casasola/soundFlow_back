@@ -61,7 +61,8 @@ class PruebaViewSet(viewsets.ModelViewSet):
                 user.save()
 
             return Response({
-                'resultado': resultado
+                'resultado': resultado,
+                'trofeoDesafio': None
             }, status=status.HTTP_200_OK)
 
         elif userEnergia >= 5 and needEnergy is False:
